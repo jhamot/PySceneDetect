@@ -43,9 +43,30 @@ from scenedetect.scene_detector import SceneDetector
 
 
 def rgb_to_hsv(frame):
+    # type: (numpy.ndarray) -> numpy.ndarray
+    """ Converts a frame from RGB color-space to HSV.
+
+    Arguments:
+        frame (numpy.ndarray): Frame to convert.
+
+    Returns:
+        numpy.ndarray: Returned frame in HSV, split into channels.
+    """
     return cv2.split(cv2.cvtColor(frame, cv2.COLOR_BGR2HSV))
 
+
 def calculate_frame_delta(curr_frame, last_frame):
+    # type: (numpy.ndarray, numpy.ndarray) -> List[float, float, float, float]
+    """ Calculates the normalized absolute difference between two frames/images.
+
+    Arguments:
+        curr_frame: Current frame to compare.
+        last_frame: Last frame to compare against curr_frame.
+
+    Returns:
+        List[float, float, float, float]: List of normalized deltas between
+        curr_frame and last_frame's 3 channels, as well as the average delta.
+    """
     delta_hsv = [0, 0, 0, 0]
     for i in range(3):
         num_pixels = curr_frame[i].shape[0] * curr_frame[i].shape[1]
@@ -65,7 +86,7 @@ class ContentDetector(SceneDetector):
     content scenes still using HSV information, use the DissolveDetector.
     """
 
-    def __init__(self, threshold=30.0, min_scene_len=15):
+    def __init__(self, threshold=30.0, min_scene_len=15, flicker_frames=0):
         # type: (float, Union[int, FrameTimecode]) -> None
         super(ContentDetector, self).__init__()
         self.threshold = threshold
@@ -77,9 +98,7 @@ class ContentDetector(SceneDetector):
         self._metric_keys = ['content_val', 'delta_hue', 'delta_sat', 'delta_lum']
         self.cli_name = 'detect-content'
         self._new_scene_cut = None
-        self.flicker_frames = 0
-
-        #assert self.min_scene_len > self.flicker_frames
+        self.flicker_frames = flicker_frames
 
 
     def process_frame(self, frame_num, frame_img):
@@ -109,35 +128,27 @@ class ContentDetector(SceneDetector):
 
         # Handle flash suppression (i.e. validate a previously detected scene transition).
         #
-        # TODO: Test rapid toggling.
-        #
-        # TODO: Add to statsfile (requires new column?, store N/A if no value,
+        # TODO: Add to statsfile (requires new column, store N/A if no value,
         #                         or delta from place where data starts otherwise)
         #
         if self._new_scene_cut is not None:
             # Make sure the next N [flicker_frames] frames are also above the threshold.
             if (frame_num - self._new_scene_cut[0]) > self.flicker_frames:
-                # We passed the threshold!  (if ff = 0 should have same behavior as current)
-                #                           (if ff = 1 should ignore a 1-frame flash)
-                #                           (if ff = 2 should ignore a 2-frame flash, etc)
+                # We passed the threshold!
                 cut_list.append(self._new_scene_cut[0])
                 self.last_scene_cut = self._new_scene_cut[0]
                 self._new_scene_cut = None
-
-            # This has to be cleaned up a lot.
-
-            # Check if delta between last_frame and frame_img still exceeds threshold.
-            # if yes, do nothing so the branch above eventually fires.
-            #if not, clear the cut, because it was a flash.
-            curr_hsv = rgb_to_hsv(frame_img)
-            last_hsv = rgb_to_hsv(self._new_scene_cut[0])
-            delta_h, delta_s, delta_v, delta_hsv_avg = calculate_frame_delta(
-                curr_hsv, last_hsv)
-            if delta_hsv_avg < self.threshold:
-                # Returned to the same scene within threshold; ignore.
-                self._new_scene_cut = None
-
-
+            else:
+                # Check if delta between last_frame and frame_img still exceeds threshold.
+                # if yes, do nothing so the branch above eventually fires.
+                #if not, clear the cut, because it was a flash.
+                curr_hsv = rgb_to_hsv(frame_img)
+                last_hsv = rgb_to_hsv(self._new_scene_cut[1])
+                delta_h, delta_s, delta_v, delta_hsv_avg = calculate_frame_delta(
+                    curr_hsv, last_hsv)
+                if delta_hsv_avg < self.threshold:
+                    # Returned to the same scene within threshold; ignore.
+                    self._new_scene_cut = None
 
         # We can only start detecting once we have a frame to compare with.
         elif self.last_frame is not None:
