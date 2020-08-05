@@ -60,7 +60,6 @@ printing a list of scenes, and both saving/loading a stats file.
         # Add ContentDetector algorithm (each detector's constructor
         # takes detector options, e.g. threshold).
         scene_manager.add_detector(ContentDetector())
-        base_timecode = video_manager.get_base_timecode()
 
         # We save our stats file to {VIDEO_PATH}.stats.csv.
         stats_file_path = '%s.stats.csv' % video_path
@@ -84,7 +83,7 @@ printing a list of scenes, and both saving/loading a stats file.
             scene_manager.detect_scenes(frame_source=video_manager)
 
             # Obtain list of detected scenes.
-            scene_list = scene_manager.get_scene_list(base_timecode)
+            scene_list = scene_manager.get_scene_list()
             # Each scene is a tuple of (start, end) FrameTimecodes.
 
             print('List of scenes obtained:')

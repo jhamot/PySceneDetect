@@ -38,7 +38,6 @@ def main():
     scene_manager = SceneManager(stats_manager)
     # Add ContentDetector algorithm (constructor takes detector options like threshold).
     scene_manager.add_detector(ContentDetector())
-    base_timecode = video_manager.get_base_timecode()
 
     try:
         # If stats file exists, load it.
@@ -62,7 +61,7 @@ def main():
         scene_manager.detect_scenes(frame_source=video_manager)
 
         # Obtain list of detected scenes.
-        scene_list = scene_manager.get_scene_list(base_timecode)
+        scene_list = scene_manager.get_scene_list()
         # Like FrameTimecodes, each scene in the scene_list can be sorted if the
         # list of scenes becomes unsorted.
 

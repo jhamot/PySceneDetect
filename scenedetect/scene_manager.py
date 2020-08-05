@@ -372,6 +372,7 @@ class SceneManager(object):
         self._stats_manager = stats_manager
         self._num_frames = 0
         self._start_frame = 0
+        self._base_timecode = None
 
 
     def add_detector(self, detector):
@@ -429,7 +430,7 @@ class SceneManager(object):
         self._sparse_detector_list.clear()
 
 
-    def get_scene_list(self, base_timecode):
+    def get_scene_list(self, base_timecode=None):
         # type: (FrameTimecode) -> List[Tuple[FrameTimecode, FrameTimecode]]
         """ Returns a list of tuples of start/end FrameTimecodes for each detected scene.
 
@@ -442,6 +443,12 @@ class SceneManager(object):
             end_time are FrameTimecode objects representing the exact time/frame where each
             detected scene in the video begins and ends.
         """
+        if self._num_frames == 0:
+            return []
+        if base_timecode is None:
+            if self._base_timecode is None:
+                return []
+            base_timecode = self._base_timecode
         return sorted(self.get_event_list(base_timecode) + get_scenes_from_cuts(
             self.get_cut_list(base_timecode), base_timecode,
             self._num_frames, self._start_frame))
@@ -549,6 +556,9 @@ class SceneManager(object):
 
         if frame_skip > 0 and self._stats_manager is not None:
             raise ValueError('frame_skip must be 0 when using a StatsManager.')
+
+        if self._base_timecode is None:
+            self._base_timecode = frame_source.get(cv2.CAP_PROP_FPS)
 
         start_frame = 0
         curr_frame = 0

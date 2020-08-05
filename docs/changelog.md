@@ -2,6 +2,9 @@
 PySceneDetect Changelog
 ==========================================================
 
+### 0.6 (TBD) &nbsp;<span class="fa fa-tags"></span>
+
+ * [api] The `get_scene_list` method of `SceneManager` no longer requires passing an explicit base timecode
 
 ### 0.5.3 (July 12, 2020) &nbsp;<span class="fa fa-tags"></span>
 
