@@ -42,7 +42,9 @@ The ``detect-content`` detector takes the following options:
                                 specified as exact number of frames, a time in
                                 seconds followed by s, or a timecode in the format
                                 HH:MM:SS or HH:MM:SS.nnn [default: 0.6s]
-
+  -f, --flicker N               Number of frames N to suppress false positive
+                                detections caused by short strobes, flashes,
+                                or pulses of bright light.  [default: 2]
 
 
 Usage Examples

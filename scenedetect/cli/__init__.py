@@ -415,8 +415,13 @@ def time_command(ctx, start, duration, end):
     'Minimum size/length of any scene. TIMECODE can be specified as exact'
     ' number of frames, a time in seconds followed by s, or a timecode in the'
     ' format HH:MM:SS or HH:MM:SS.nnn')
+@click.option(
+    '--flicker', '-f', metavar='N',
+    type=click.IntRange(min=0), default=2, show_default=True, help=
+    'Number of frames N to suppress false positive detections caused by short'
+    ' strobes, flashes, or pulses of bright light.')
 @click.pass_context
-def detect_content_command(ctx, threshold, min_scene_len):
+def detect_content_command(ctx, threshold, min_scene_len, flicker):
     """ Perform content detection algorithm on input video(s).
 
     detect-content
@@ -434,7 +439,7 @@ def detect_content_command(ctx, threshold, min_scene_len):
     # Need to ensure that a detector is not added twice, or will cause
     # a frame metric key error when registering the detector.
     ctx.obj.add_detector(scenedetect.detectors.ContentDetector(
-        threshold=threshold, min_scene_len=min_scene_len))
+        threshold=threshold, min_scene_len=min_scene_len, flicker_frames=flicker))
 
 
 

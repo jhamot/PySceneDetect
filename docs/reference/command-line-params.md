@@ -168,6 +168,9 @@ Options:
                               file.  [default: 30.0]
   -m, --min-scene-len FRAMES  Minimum size/length of any scene, in number of
                               frames.  [default: 15]
+  -f, --flicker N             Number of frames N to suppress false positive
+                              detections caused by short strobes, flashes,
+                              or pulses of bright light.  [default: 2]
   -h, --help                  Show this message and exit.
 ```
 

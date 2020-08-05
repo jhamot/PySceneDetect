@@ -4,6 +4,9 @@ PySceneDetect Changelog
 
 ### 0.6 (TBD) &nbsp;<span class="fa fa-tags"></span>
 
+ * [feature] New flash/strobe/flicker suppression option for the content detector `-f` / `--flicker [N]` which allows for setting the amount of suppression in frames or as a unit of time (default is 2 frames)
+
+ method of `SceneManager` no longer requires passing an explicit base timecode
  * [api] The `get_scene_list` method of `SceneManager` no longer requires passing an explicit base timecode
 
 ### 0.5.3 (July 12, 2020) &nbsp;<span class="fa fa-tags"></span>
