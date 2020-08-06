@@ -5,13 +5,12 @@ PySceneDetect Changelog
 ### 0.6 (TBD) &nbsp;<span class="fa fa-tags"></span>
 
  * [feature] New flash/strobe/flicker suppression option for the content detector `-f` / `--flicker [N]` which allows for setting the amount of suppression in frames or as a unit of time (default is 2 frames)
-
- method of `SceneManager` no longer requires passing an explicit base timecode
- * [api] The `get_scene_list` method of `SceneManager` no longer requires passing an explicit base timecode
+ * [enhancement] Improved seeking performance, greatly improves performance of the `time` and `save-images` commands ([#98](https://github.com/Breakthrough/PySceneDetect/issues/98) and [PR #163](https://github.com/Breakthrough/PySceneDetect/pull/163) - thanks @obroomhall)
+ * [api] The `get_scene_list()` method of `SceneManager` no longer requires passing an explicit base timecode (i.e. the argument is now optional)
 
 ### 0.5.3 (July 12, 2020) &nbsp;<span class="fa fa-tags"></span>
 
- * [bugfix] Changed default audio codec from 'copy' to 'aac' when splitting scenes with `ffmpeg` to reduce frequency of frames from next scene showing up at the end of the current one when split using `ffmpeg` (see [#93](https://github.com/Breakthrough/PySceneDetect/issues/93), [#159](https://github.com/Breakthrough/PySceneDetect/issues/159), #166 - thank you everyone for your assistance, especially joshcoales, amvscenes, jelias, and typoman). If this still occurs, please provide any information you can by [filing a new issue on Github](https://github.com/Breakthrough/PySceneDetect/issues/new/choose).
+ * [bugfix] Changed default audio codec from 'copy' to 'aac' when splitting scenes with `ffmpeg` to reduce frequency of frames from next scene showing up at the end of the current one when split using `ffmpeg` (see [#93](https://github.com/Breakthrough/PySceneDetect/issues/93), [#159](https://github.com/Breakthrough/PySceneDetect/issues/159), and [PR #166](https://github.com/Breakthrough/PySceneDetect/pull/166) - thank you everyone for your assistance, especially @joshcoales, @amvscenes, @jelias, and @typoman). If this still occurs, please provide any information you can by [filing a new issue on Github](https://github.com/Breakthrough/PySceneDetect/issues/new/choose).
   * [enhancement] `video_splitter` module now has completed documentation
   * [bugfix] improve timestamp accuracy using the `split-video` command due to timecode formatting
   * [bugfix] fix crash when supplying `-l`/`--logfile` argument (see [#169](https://github.com/Breakthrough/PySceneDetect/issues/169), thanks @typoman)
@@ -53,10 +52,10 @@ PySceneDetect Changelog
  * **major** release, includes stable Python API with examples and updated documentation
  * numerous changes to command-line interface with addition of sub-commands (see [the new manual](http://manual.scenedetect.com) for updated usage information)
  * [feature] videos are now split using `ffmpeg` by default, resulting in frame-perfect cuts (can still use `mkvmerge` by specifying the `-c`/`--copy` argument to the `split-video` command)
- * [enhance] image filename numbers are now consistent with those of split video scenes (PR #39, thanks [@e271828-](https://github.com/Breakthrough/PySceneDetect/pull/39))
+ * [enhance] image filename numbers are now consistent with those of split video scenes ([PR #39](https://github.com/Breakthrough/PySceneDetect/pull/39), thanks @e271828-)
  * [enhance] 5-10% improvement in processing performance due to reduced memory copy operations (PR #40, thanks [@elcombato](https://github.com/Breakthrough/PySceneDetect/pull/40))
  * [enhance] updated exception handling to raise proper standard exceptions (PR #37, thanks [@talkain](https://github.com/Breakthrough/PySceneDetect/pull/37))
- * several fixes to the documentation, including improper dates and outdated CLI arguments (PR #26 and #, thanks [@elcombato](https://github.com/Breakthrough/PySceneDetect/pull/26), and [@colelawrence](https://github.com/Breakthrough/PySceneDetect/pull/33))
+ * several fixes to the documentation, including improper dates and outdated CLI arguments ([PR #26](https://github.com/Breakthrough/PySceneDetect/pull/26) and [PR #33](https://github.com/Breakthrough/PySceneDetect/pull/33), thanks @elcombato, and @colelawrence)
  * *numerous* other PRs and issues/bug reports that have been fixed - there are too many to list individually here, so I want to extend a big thank you to **everyone** who contributed to making this release better
  * [enhance] add Sphinx-generated API documentation (available at: http://manual.scenedetect.com)
  * [project] move from BSD 2-clause to 3-clause license
