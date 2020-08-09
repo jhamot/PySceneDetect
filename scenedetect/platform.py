@@ -231,3 +231,26 @@ def get_and_create_path(file_path, output_directory=None):
     except OSError:
         pass
     return file_path
+
+
+##
+## Enumerations
+##
+
+def create_enum(**enums):
+    # type: (A='a', B=2, C=cat, ...) -> Enum
+    """ Create an enumeration. Implementation from:
+    https://stackoverflow.com/a/1695250. Works as follows:
+
+        Number = enum(ONE=1, Two=2, three='three')
+        print(Number.ONE, Number.Two, Number.three)
+
+    Arguments:
+        Enumeration names and values in form of ENUM_NAME
+
+    Returns:
+        (Enum) A type which acts like the enumeration in the
+        example above (e.g. enum(ONE=1).ONE).
+
+    """
+    return type('Enum', (), enums)

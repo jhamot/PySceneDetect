@@ -40,7 +40,6 @@ import math
 # PySceneDetect Library Imports
 from scenedetect.platform import STRING_TYPE
 
-
 MINIMUM_FRAMES_PER_SECOND_FLOAT = 1.0 / 1000.0
 MINIMUM_FRAMES_PER_SECOND_DELTA_FLOAT = 1.0 / 100000
 

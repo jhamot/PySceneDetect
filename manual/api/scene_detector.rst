@@ -5,7 +5,18 @@
 SceneDetector
 -------------------------------------------------
 
-.. automodule:: scenedetect.scene_detector
+=========================================
+SceneDetector Class
+=========================================
+
+.. autoclass:: scenedetect.scene_detector.SceneDetector
    :members:
    :undoc-members:
-   :private-members:
+
+=========================================
+EventType
+=========================================
+
+.. autoclass:: scenedetect.scene_detector.EventType
+   :members:
+   :undoc-members:

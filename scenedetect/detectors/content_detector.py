@@ -109,7 +109,7 @@ class ContentDetector(SceneDetector):
         Arguments:
             frame_num (int): Frame number of frame that is being passed.
 
-            frame_img (Optional[int]): Decoded frame image (numpy.ndarray) to perform scene
+            frame_img (Union[int, None]): Decoded frame image (numpy.ndarray) to perform scene
                 detection on. Can be None *only* if the self.is_processing_required() method
                 (inhereted from the base SceneDetector class) returns True.
 

@@ -37,9 +37,9 @@ This detector is available from the command-line interface by using the
 import cv2
 
 # PySceneDetect Library Imports
-from scenedetect.scene_detector import SparseSceneDetector
+from scenedetect.scene_detector import SceneDetector
 
-class MotionDetector(SparseSceneDetector):
+class MotionDetector(SceneDetector):
     """Detects motion events in scenes containing a static background.
 
     Uses background subtraction followed by noise removal (via morphological

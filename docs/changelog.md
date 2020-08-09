@@ -4,11 +4,22 @@ PySceneDetect Changelog
 
 ### 0.6 (TBD) &nbsp;<span class="fa fa-tags"></span>
 
+#### Command Line Changes
+
  * [feature] New flash/strobe/flicker suppression option for the content detector `-f` / `--flicker [N]` which allows for setting the amount of suppression in frames or as a unit of time (default is 2 frames)
  * [enhancement] Improved seeking performance, greatly improves performance of the `time` and `save-images` commands ([#98](https://github.com/Breakthrough/PySceneDetect/issues/98) and [PR #163](https://github.com/Breakthrough/PySceneDetect/pull/163) - thanks @obroomhall)
- * [api] The `get_scene_list()` method of `SceneManager` no longer requires passing an explicit base timecode (i.e. the argument is now optional)
 
-### 0.5.3 (July 12, 2020) &nbsp;<span class="fa fa-tags"></span>
+#### Python API Changes
+
+Note that there are many major breaking API changes in this release. Attempts were made to ensure compatibility with existing Python software for the majority of cases.  However, this was not possible in all cases.  In addition to the changelog below, see [#177](https://github.com/Breakthrough/PySceneDetect/issues/177) on Github for more details.
+
+ * [api] `get_scene_list()` method of `SceneManager` no longer requires passing an explicit base timecode (i.e. the argument is now optional)
+ * [api] `SparseSceneDetector` class has been removed from the `scenedetector.scene_detector` module in favor of having the existing `SceneDetector` return events of different types, rather than just fast cuts
+ * [api] `SceneDetector` base class `post_process()` function has been **removed**
+ * [api] Added `EventType` enumeration to describe scene detection events (`EventType.CUT`, `EventType.IN`, and `EventType.OUT`)
+ * [api] `SceneDetector` method `process_frame()` now returns the above type of event for that frame (previously it was a list of cuts)
+
+### 0.5.3 (July 12, 2020)
 
  * [bugfix] Changed default audio codec from 'copy' to 'aac' when splitting scenes with `ffmpeg` to reduce frequency of frames from next scene showing up at the end of the current one when split using `ffmpeg` (see [#93](https://github.com/Breakthrough/PySceneDetect/issues/93), [#159](https://github.com/Breakthrough/PySceneDetect/issues/159), and [PR #166](https://github.com/Breakthrough/PySceneDetect/pull/166) - thank you everyone for your assistance, especially @joshcoales, @amvscenes, @jelias, and @typoman). If this still occurs, please provide any information you can by [filing a new issue on Github](https://github.com/Breakthrough/PySceneDetect/issues/new/choose).
   * [enhancement] `video_splitter` module now has completed documentation

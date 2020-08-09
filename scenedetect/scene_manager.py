@@ -62,7 +62,6 @@ from scenedetect.frame_timecode import FrameTimecode
 from scenedetect.platform import get_csv_writer
 from scenedetect.platform import get_cv2_imwrite_params
 from scenedetect.stats_manager import FrameMetricRegistered
-from scenedetect.scene_detector import SparseSceneDetector
 
 from scenedetect.thirdparty.simpletable import SimpleTableCell, SimpleTableImage
 from scenedetect.thirdparty.simpletable import SimpleTableRow, SimpleTable, HTMLPage
@@ -368,7 +367,6 @@ class SceneManager(object):
         self._cutting_list = []
         self._event_list = []
         self._detector_list = []
-        self._sparse_detector_list = []
         self._stats_manager = stats_manager
         self._num_frames = 0
         self._start_frame = 0
@@ -394,10 +392,7 @@ class SceneManager(object):
             except FrameMetricRegistered:
                 pass
 
-        if not issubclass(type(detector), SparseSceneDetector):
-            self._detector_list.append(detector)
-        else:
-            self._sparse_detector_list.append(detector)
+        self._detector_list.append(detector)
 
 
     def get_num_detectors(self):
@@ -427,7 +422,6 @@ class SceneManager(object):
         # type: () -> None
         """ Removes all scene detectors added to the SceneManager via add_detector(). """
         self._detector_list.clear()
-        self._sparse_detector_list.clear()
 
 
     def get_scene_list(self, base_timecode=None):
@@ -506,11 +500,6 @@ class SceneManager(object):
             if cuts and callback:
                 callback(frame_im, frame_num)
             self._cutting_list += cuts
-        for detector in self._sparse_detector_list:
-            events = detector.process_frame(frame_num, frame_im)
-            if events and callback:
-                callback(frame_im, frame_num)
-            self._event_list += events
 
 
     def _is_processing_required(self, frame_num):
@@ -523,9 +512,10 @@ class SceneManager(object):
 
     def _post_process(self, frame_num):
         # type(int, numpy.ndarray) -> None
-        """ Adds any remaining cuts to the cutting list after processing the last frame. """
-        for detector in self._detector_list:
-            self._cutting_list += detector.post_process(frame_num)
+        """ TODO: Figure out new implementation.  Will require passing additional
+        arguments to this function, which should be set when the SceneManager is
+        constructed (e.g. what to do if there is an IN event before the last frame).
+        """
 
 
     def detect_scenes(self, frame_source, end_time=None, frame_skip=0,

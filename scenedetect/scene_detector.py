@@ -35,15 +35,50 @@ are expected to provide in order to be compatible with PySceneDetect.
 
 # pylint: disable=unused-argument, no-self-use
 
+from scenedetect.platform import create_enum as Enumeration
+
+
+# See documentation below in class EventType.
+EventTypeEnum = Enumeration(
+    CUT=1,
+    IN=2,
+    OUT=3
+)
+
+class EventType(EventTypeEnum):
+    """ Enumeration of event types that a SceneDetector's `process_frame()` and
+    `post_process()` methods can return.  The current types of events are:
+
+        1. EventType.CUT - Occurs when there is a change in the scene (i.e. the
+            difference between the current and last frames has exceeded some threshold).
+        2. EventType.IN - Occurs when the current frame is equal to or above some
+            threshold.
+        3. EventType.OUT - Occurs when the current frame is below some threshold.
+
+    What the threshold means, or what difference between frames is being calculated,
+    is dependent on the particular SceneDetector implementation being used (e.g.
+    :py:class:`ContentDetector <scenedetect.detectors.content_detector.ContentDetector>`).
+
+    """
+    # pylint: disable=unnecessary-pass
+    pass
+
 
 class SceneDetector(object):
     """ Base class to inheret from when implementing a scene detection algorithm.
 
-    This represents a "dense" scene detector, which returns a list of frames where
-    the next scene/shot begins in a video.
+    SceneDetectors take frames (and the frame number), and return any event for
+    that frame (if any).  Events that can be detected are described in the
+    :py:class:`EventType <scenedetect.scene_detector.EventType>` enumeration.
 
-    Also see the implemented scene detectors in the scenedetect.detectors module
-    to get an idea of how a particular detector can be created.
+    The :py:class:`ContentDetector <scenedetect.detectors.content_detector.ContentDetector>`,
+    for example, detect cuts (`EventType.CUT`), whereas the
+    :py:class:`ThresholdDetector <scenedetect.detectors.threshold_detector.ThresholdDetector>`,
+    detects in and out events (`EventType.IN`/`OUT`).
+
+    See the implemented scene detectors in the scenedetect.detectors module
+    to see an example of how some detection algorithms are implemented (e.g.
+    ).
     """
 
     stats_manager = None
@@ -54,8 +89,8 @@ class SceneDetector(object):
     """ List of frame metric keys to be registered with the :py:attr:`stats_manager`,
     if available. """
 
-    cli_name = 'detect-none'
-    """ Name of detector to use in command-line interface description. """
+    cli_name = 'detect-some-name'
+    """ Command/name of detector to use for command-line interface description. """
 
     def is_processing_required(self, frame_num):
         # type: (int) -> bool
@@ -93,53 +128,7 @@ class SceneDetector(object):
         Prototype method, no actual detection.
 
         Returns:
-            List[int]: List of frame numbers of cuts to be added to the cutting list.
-        """
-        return []
-
-
-    def post_process(self, frame_num):
-        # type: (int) -> List[int]
-        """ Post Process: Performs any processing after the last frame has been read.
-
-        Prototype method, no actual detection.
-
-        Returns:
-            List[int]: List of frame numbers of cuts to be added to the cutting list.
-        """
-        return []
-
-
-class SparseSceneDetector(SceneDetector):
-    """ Base class to inheret from when implementing a sparse scene detection algorithm.
-
-    Unlike dense detectors, sparse detectors detect "events" and return a *pair* of frames,
-    as opposed to just a single cut.
-
-    An example of a SparseSceneDetector is the MotionDetector.
-    """
-
-    def process_frame(self, frame_num, frame_img):
-        # type: (int, numpy.ndarray) -> List[Tuple[int, int]]
-        """ Process Frame: Computes/stores metrics and detects any scene changes.
-
-        Prototype method, no actual detection.
-
-        Returns:
-            List[Tuple[int,int]]: List of frame pairs representing individual scenes
-            to be added to the output scene list directly.
-        """
-        return []
-
-
-    def post_process(self, frame_num):
-        # type: (int) -> List[Tuple[int, int]]
-        """ Post Process: Performs any processing after the last frame has been read.
-
-        Prototype method, no actual detection.
-
-        Returns:
-            List[Tuple[int,int]]: List of frame pairs representing individual scenes
-            to be added to the output scene list directly.
+            Union[EventType, None]: The type of event detected (e.g. `EventType.CUT`),
+            or None if no event was detected.
         """
         return []
