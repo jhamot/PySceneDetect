@@ -273,7 +273,7 @@ def scenedetect_cli(ctx, input, output, framerate, downscale, frame_skip, stats,
     else:
         logging.disable(logging.CRITICAL)
 
-    logging.debug('PySceneDetect %s', scenedetect.__version__)
+    logging.info('PySceneDetect %s', scenedetect.__version__)
 
     if stats is not None and frame_skip != 0:
         ctx.obj.options_processed = False

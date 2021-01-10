@@ -77,9 +77,17 @@ import math
 import time
 from string import Template
 
-# Third-Party Library Imports
-from scenedetect.platform import tqdm
+# PySceneDetect Imports
+from scenedetect.platform import tqdm, invoke_command, CommandTooLong
 
+COMMAND_TOO_LONG_STRING = '''
+Cannot split video due to too many scenes (resulting command
+is too large to process). To work around this issue, you can
+split the video manually by exporting a list of cuts with the
+`list-scenes` command.
+See https://github.com/Breakthrough/PySceneDetect/issues/164
+for details.  Sorry about that!
+'''
 
 ##
 ## Command Availability Checking Functions
@@ -172,15 +180,16 @@ def split_video_mkvmerge(input_video_paths, scene_list, output_file_template,
             ' +'.join(input_video_paths)]
         total_frames = scene_list[-1][1].get_frames() - scene_list[0][0].get_frames()
         processing_start_time = time.time()
-        ret_val = subprocess.call(call_list)
+        ret_val = invoke_command(call_list)
         if not suppress_output:
             print('')
             logging.info('Average processing speed %.2f frames/sec.',
                          float(total_frames) / (time.time() - processing_start_time))
+    except CommandTooLong:
+        logging.error(COMMAND_TOO_LONG_STRING)
     except OSError:
         logging.error('mkvmerge could not be found on the system.'
                       ' Please install mkvmerge to enable video output support.')
-        raise
     if ret_val is not None and ret_val != 0:
         logging.error('Error splitting video (mkvmerge returned %d).', ret_val)
 
@@ -238,7 +247,11 @@ def split_video_ffmpeg(input_video_paths, scene_list, output_file_template, vide
         progress_bar = None
         total_frames = scene_list[-1][1].get_frames() - scene_list[0][0].get_frames()
         if tqdm and not hide_progress:
-            progress_bar = tqdm(total=total_frames, unit='frame', miniters=1)
+            progress_bar = tqdm(
+                total=total_frames,
+                unit='frame',
+                miniters=1,
+                dynamic_ncols=True)
         processing_start_time = time.time()
         for i, (start_time, end_time) in enumerate(scene_list):
             duration = (end_time - start_time)
@@ -266,7 +279,7 @@ def split_video_ffmpeg(input_video_paths, scene_list, output_file_template, vide
                     VIDEO_NAME=video_name,
                     SCENE_NUMBER=scene_num_format % (i + 1))
                 ]
-            ret_val = subprocess.call(call_list)
+            ret_val = invoke_command(call_list)
             if not suppress_output and i == 0 and len(scene_list) > 1:
                 logging.info(
                     'Output from ffmpeg for Scene 1 shown above, splitting remaining scenes...')
@@ -278,6 +291,9 @@ def split_video_ffmpeg(input_video_paths, scene_list, output_file_template, vide
             print('')
             logging.info('Average processing speed %.2f frames/sec.',
                          float(total_frames) / (time.time() - processing_start_time))
+
+    except CommandTooLong:
+        logging.error(COMMAND_TOO_LONG_STRING)
     except OSError:
         logging.error('ffmpeg could not be found on the system.'
                       ' Please install ffmpeg to enable video output support.')

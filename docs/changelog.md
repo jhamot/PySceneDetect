@@ -1,6 +1,8 @@
 
-PySceneDetect Changelog
+PySceneDetect Releases
 ==========================================================
+
+## PySceneDetect 0.6
 
 ### 0.6 (TBD) &nbsp;<span class="fa fa-tags"></span>
 
@@ -8,12 +10,83 @@ PySceneDetect Changelog
  * [enhancement] Improved seeking performance, greatly improves performance of the `time` and `save-images` commands ([#98](https://github.com/Breakthrough/PySceneDetect/issues/98) and [PR #163](https://github.com/Breakthrough/PySceneDetect/pull/163) - thanks @obroomhall)
  * [api] The `get_scene_list()` method of `SceneManager` no longer requires passing an explicit base timecode (i.e. the argument is now optional)
 
-### 0.5.3 (July 12, 2020) &nbsp;<span class="fa fa-tags"></span>
 
- * [bugfix] Changed default audio codec from 'copy' to 'aac' when splitting scenes with `ffmpeg` to reduce frequency of frames from next scene showing up at the end of the current one when split using `ffmpeg` (see [#93](https://github.com/Breakthrough/PySceneDetect/issues/93), [#159](https://github.com/Breakthrough/PySceneDetect/issues/159), and [PR #166](https://github.com/Breakthrough/PySceneDetect/pull/166) - thank you everyone for your assistance, especially @joshcoales, @amvscenes, @jelias, and @typoman). If this still occurs, please provide any information you can by [filing a new issue on Github](https://github.com/Breakthrough/PySceneDetect/issues/new/choose).
+## PySceneDetect v0.5
+
+### 0.5.5
+
+#### Release Notes
+
+ * Primarily maintenance release including various bugfixes and minor API changes
+ * Removed first row from statsfiles so it is a valid CSV file
+ * The progress bar now correctly resizes when the terminal is resized
+
+#### Changelog
+
+ * [enhancement] Removed first row from statsfile to comply with RFC 4180, includes backwards compatibility so existing statsfiles can still be loaded (resolves [#136](https://github.com/Breakthrough/PySceneDetect/issues/136))
+ * [api] Removed unused argument base_timecode from `StatsManager.load_from_csv()` method
+ * [api] Make the `base_timecode` argument optional on the `SceneManager` methods `get_scene_list()`, `get_cut_list()`, and `get_event_list()` (resolves [#173](https://github.com/Breakthrough/PySceneDetect/issues/173))
+ * [api] Support for live video stream callbacks by adding new `callback` argument to the `detect_scenes()` method of `SceneManager` (resolves [#5](https://github.com/Breakthrough/PySceneDetect/issues/5))
+ * [bugfix] Fix unhandled exception causing improper error message when a video fails to load on non-Windows platforms (resolves [#192](https://github.com/Breakthrough/PySceneDetect/issues/192))
+ * [enhancement] Enabled dynamic resizing for progress bar (resolves [#193](https://github.com/Breakthrough/PySceneDetect/issues/193))
+ * [enhancement] Always ouptut version number via logger to assist with debugging (resolves [#171](https://github.com/Breakthrough/PySceneDetect/issues/171))
+
+#### Known Issues
+
+ * Variable framerate videos are not supported properly currently (#168), a warning may be added in the next release to indicate when a VFR video is detected, until this can be properly resolved ([#168](https://github.com/Breakthrough/PySceneDetect/issues/168))
+ * In certain cases, video files which will not load will fail silently, with PySceneDetect reporting that it processed 0 frames.  Better error handling/messaging is planned for these cases as part of [#179](https://github.com/Breakthrough/PySceneDetect/issues/179)
+
+
+### 0.5.4 (September 14, 2020) &nbsp;<span class="fa fa-tags"></span>
+
+#### Release Notes
+
+ * Improved performance when using `time` and `save-images` commands
+ * Improved performance of `detect-threshold` when using a small minimum percent
+ * Fix crash when using `detect-threshold` with a statsfile
+ * Fix crash when using `save-images` command under Python 2.7
+ * Support for Python 3.3 and 3.4 has been deprecated (see below)
+
+#### Changelog
+
+ * [bugfix] fix `detect-threshold` crash when using statsfile ([#122](https://github.com/Breakthrough/PySceneDetect/issues/122))
+ * [bugfix] fix `save-images` command under Python 2.7 ([#174](https://github.com/Breakthrough/PySceneDetect/issues/174), thanks @santiagodemierre)
+ * [bugfix] gracefully exit and show link to FAQ when number of scenes is too large to split with mkvmerge on Windows (see [#164](https://github.com/Breakthrough/PySceneDetect/issues/164, thanks @alexboydray)
+ * [enhancement] Improved seeking performance, greatly improves performance of the `time` and `save-images` commands ([#98](https://github.com/Breakthrough/PySceneDetect/issues/98) and [PR #163](https://github.com/Breakthrough/PySceneDetect/pull/163) - thanks @obroomhall)
+ * [enhancement] improve `detect-threshold` performance when min-percent is less than 50%
+ * [general] Made `tqdm` a regular requirement and not an extra ([#180](https://github.com/Breakthrough/PySceneDetect/issues/180))
+ * [general] Support for Python 3.3 and 3.4 has been deprecated. Newer builds may still work on these Python versions, but future releases are not tested against these versions. This decision was made as part of [#180](https://github.com/Breakthrough/PySceneDetect/issues/180)
+
+#### Known Issues
+
+ * Variable framerate videos are not supported properly currently (#168), a warning may be added in the next release to indicate when a VFR video is detected, until this can be properly resolved ([#168](https://github.com/Breakthrough/PySceneDetect/issues/168))
+ * In certain cases, video files which will not load will fail silently, with PySceneDetect reporting that it processed 0 frames.  Better error handling/messaging is planned for these cases as part of [#179](https://github.com/Breakthrough/PySceneDetect/issues/179)
+
+
+### 0.5.3 (July 12, 2020)
+
+#### Release Notes
+
+ * Resolved long-standing bug where `split-video` command would duplicate certain frames at the beginning/end of the output ([#93](https://github.com/Breakthrough/PySceneDetect/issues/93))
+ * This was determined to be caused by copying (instead of re-encoding) the audio track, causing extra frames to be brought in when the audio samples did not line up on a frame boundary (thank you @joshcoales for your assistance)
+ * Default behavior is to now re-encode audio tracks using the `aac` codec when using `split-video` (it can be overriden in both the command line and Python interface)
+ * Improved timestamp accuracy when using `split-video` command to further reduce instances of duplicated or off-by-one frame issues
+ * Fixed application crash when using the `-l`/`--logfile` argument
+
+#### Changelog
+
+ * [bugfix] Changed default audio codec from 'copy' to 'aac' when splitting scenes with `ffmpeg` to reduce frequency of frames from next scene showing up at the end of the current one when split using `ffmpeg` (see [#93](https://github.com/Breakthrough/PySceneDetect/issues/93), [#159](https://github.com/Breakthrough/PySceneDetect/issues/159), and [PR #166](https://github.com/Breakthrough/PySceneDetect/pull/166) - thank you everyone for your assistance, especially joshcoales, amvscenes, jelias, and typoman). If this still occurs, please provide any information you can by [filing a new issue on Github](https://github.com/Breakthrough/PySceneDetect/issues/new/choose).
   * [enhancement] `video_splitter` module now has completed documentation
   * [bugfix] improve timestamp accuracy using the `split-video` command due to timecode formatting
   * [bugfix] fix crash when supplying `-l`/`--logfile` argument (see [#169](https://github.com/Breakthrough/PySceneDetect/issues/169), thanks @typoman)
+
+#### Known Issues
+
+ * Seeking through long videos is inefficient, causing the `time` and `save-images` command to take a long time to run.  This will be resolved in the next release (see [#98](https://github.com/Breakthrough/PySceneDetect/issues/98))
+ * The `save-images` command causes PySceneDetect to crash under Python 2.7 (see [#174](https://github.com/Breakthrough/PySceneDetect/issues/174))
+ * Using `detect-threshold` with a statsfile causes PySceneDetect to crash (see [#122](https://github.com/Breakthrough/PySceneDetect/issues/122))
+ * Variable framerate videos are not supported properly currently (#168), a warning may be added in the next release to indicate when a VFR video is detected, until this can be properly resolved ([#168](https://github.com/Breakthrough/PySceneDetect/issues/168))
+ * Videos with multiple audio tracks may not work correctly, see [this comment on #179](https://github.com/Breakthrough/PySceneDetect/issues/179#issuecomment-685252441) for a workaround using `ffmpeg` or `mkvmerge`
 
 
 ### 0.5.2 (March 29, 2020)
@@ -47,7 +120,7 @@ PySceneDetect Changelog
  * Removed Windows installer due to binary packages now being available, and to streamline the release process (see [#102](https://github.com/Breakthrough/PySceneDetect/issues/102) for more information).  When you type `pip install scenedetect[opencv,progress_bar]`, all dependencies will be installed.
 
 
-## 0.5 (August 31, 2018)
+### 0.5 (August 31, 2018)
 
  * **major** release, includes stable Python API with examples and updated documentation
  * numerous changes to command-line interface with addition of sub-commands (see [the new manual](http://manual.scenedetect.com) for updated usage information)
@@ -63,8 +136,9 @@ PySceneDetect Changelog
 
 ----------------------------------------------------------------
 
+## PySceneDetect 0.4
 
-## 0.4 (January 14, 2017)
+### 0.4 (January 14, 2017)
 
  * major release, includes integrated scene splitting via mkvmerge, changes meaning of `-o` / `--output` option
  * [feature] specifying `-o OUTPUT_FILE.mkv` will now automatically split the input video, generating a new video clip for each detected scene in sequence, starting with `OUTPUT_FILE-001.mkv`
@@ -73,6 +147,8 @@ PySceneDetect Changelog
 
 ----------------------------------------------------------------
 
+
+## PySceneDetect 0.3-beta
 
 ### 0.3.6 (January 12, 2017)
 
@@ -120,7 +196,7 @@ PySceneDetect Changelog
  * [internal] additional API functions to remove requirement on passing OpenCV video objects, and allow just a file path instead
 
 
-## 0.3-beta (January 8, 2016)
+### 0.3-beta (January 8, 2016)
 
  * major release, includes improved detection algorithms and complete internal code refactor
  * [feature]  content-aware scene detection using HSV-colourspace based algorithm (use `-d content`)
@@ -132,6 +208,7 @@ PySceneDetect Changelog
 
 ----------------------------------------------------------------
 
+## PySceneDetect 0.2-alpha
 
 ### 0.2.4-alpha (December 22, 2015)
  * [bugfix] updated OpenCV compatibility with self-reported version on some Linux distributions
@@ -155,7 +232,7 @@ PySceneDetect Changelog
  * [enhance] one-line of CSV timecodes added for easy splitting with external tool
 
 
-## 0.2-alpha (June 9, 2014)
+### 0.2-alpha (June 9, 2014)
 
  * [enhance] now provides discrete scene list (in addition to fades)
  * [feature] ability to output to file (-o / --output flag)
@@ -164,7 +241,9 @@ PySceneDetect Changelog
 ----------------------------------------------------------------
 
 
-## 0.1-alpha (June 8, 2014)
+## PySceneDetect 0.1-alpha
+
+### 0.1-alpha (June 8, 2014)
 
  * first public release
  * [feature] threshold-based fade in/out detection

@@ -292,7 +292,9 @@ def generate_images(scene_list, video_manager, video_name, num_images=2,
     progress_bar = None
     if tqdm and show_progress:
         progress_bar = tqdm(
-            total=len(scene_list) * num_images, unit='images')
+            total=len(scene_list) * num_images,
+            unit='images',
+            dynamic_ncols=True)
 
     filename_template = Template(image_name_template)
 
@@ -443,18 +445,16 @@ class SceneManager(object):
             end_time are FrameTimecode objects representing the exact time/frame where each
             detected scene in the video begins and ends.
         """
-        if self._num_frames == 0:
-            return []
         if base_timecode is None:
-            if self._base_timecode is None:
-                return []
             base_timecode = self._base_timecode
+        if base_timecode is None:
+            return []
         return sorted(self.get_event_list(base_timecode) + get_scenes_from_cuts(
             self.get_cut_list(base_timecode), base_timecode,
             self._num_frames, self._start_frame))
 
 
-    def get_cut_list(self, base_timecode):
+    def get_cut_list(self, base_timecode=None):
         # type: (FrameTimecode) -> List[FrameTimecode]
         """ Returns a list of FrameTimecodes of the detected scene changes/cuts.
 
@@ -471,7 +471,10 @@ class SceneManager(object):
             was detected in the input video(s), which can also be passed to external tools
             for automated splitting of the input into individual scenes.
         """
-
+        if base_timecode is None:
+            base_timecode = self._base_timecode
+        if base_timecode is None:
+            return []
         return [FrameTimecode(cut, base_timecode)
                 for cut in self._get_cutting_list()]
 
@@ -483,7 +486,7 @@ class SceneManager(object):
         return sorted(list(set(self._cutting_list)))
 
 
-    def get_event_list(self, base_timecode):
+    def get_event_list(self, base_timecode=None):
         # type: (FrameTimecode) -> List[FrameTimecode]
         """ Returns a list of FrameTimecode pairs of the detected scenes by all sparse detectors.
 
@@ -494,6 +497,10 @@ class SceneManager(object):
         Returns:
             List of pairs of FrameTimecode objects denoting the detected scenes.
         """
+        if base_timecode is None:
+            base_timecode = self._base_timecode
+        if base_timecode is None:
+            return []
         return [(base_timecode + start, base_timecode + end)
                 for start, end in self._event_list]
 
@@ -553,7 +560,8 @@ class SceneManager(object):
             show_progress (bool): If True, and the ``tqdm`` module is available, displays
                 a progress bar with the progress, framerate, and expected time to
                 complete processing the video frame source.
-            callback ((image_ndarray, frame_num: int) -> None): If not None, called after each scene/event detected.
+            callback ((image_ndarray, frame_num: int) -> None): If not None, called after
+                each scene/event detected.
         Returns:
             int: Number of frames read and processed from the frame source.
         Raises:
@@ -570,6 +578,8 @@ class SceneManager(object):
         start_frame = 0
         curr_frame = 0
         end_frame = None
+        self._base_timecode = FrameTimecode(
+            timecode=0, fps=frame_source.get(cv2.CAP_PROP_FPS))
 
         total_frames = math.trunc(frame_source.get(cv2.CAP_PROP_FRAME_COUNT))
 
@@ -599,7 +609,9 @@ class SceneManager(object):
         progress_bar = None
         if tqdm and show_progress:
             progress_bar = tqdm(
-                total=total_frames, unit='frames')
+                total=total_frames,
+                unit='frames',
+                dynamic_ncols=True)
         try:
 
             while True:
