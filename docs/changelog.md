@@ -4,24 +4,21 @@ PySceneDetect Releases
 
 ## PySceneDetect 0.6
 
-### 0.6 (TBD) &nbsp;<span class="fa fa-tags"></span>
+### 0.6 (TBD)
 
 #### Command Line Changes
 
  * [feature] New flash/strobe/flicker suppression option for the content detector `-f` / `--flicker [N]` which allows for setting the amount of suppression in frames or as a unit of time (default is 2 frames)
- * [enhancement] Improved seeking performance, greatly improves performance of the `time` and `save-images` commands ([#98](https://github.com/Breakthrough/PySceneDetect/issues/98) and [PR #163](https://github.com/Breakthrough/PySceneDetect/pull/163) - thanks @obroomhall)
 
 #### Python API Changes
 
 Note that there are many major breaking API changes in this release. Attempts were made to ensure compatibility with existing Python software for the majority of cases.  However, this was not possible in all cases.  In addition to the changelog below, see [#177](https://github.com/Breakthrough/PySceneDetect/issues/177) on Github for more details.
 
- * [api] `get_scene_list()` method of `SceneManager` no longer requires passing an explicit base timecode (i.e. the argument is now optional)
  * [api] `SparseSceneDetector` class has been removed from the `scenedetector.scene_detector` module in favor of having the existing `SceneDetector` return events of different types, rather than just fast cuts
  * [api] `SceneDetector` base class `post_process()` function has been **removed**
  * [api] Added `EventType` enumeration to describe scene detection events (`EventType.CUT`, `EventType.IN`, and `EventType.OUT`)
  * [api] `SceneDetector` method `process_frame()` now returns the above type of event for that frame (previously it was a list of cuts)
 
-### 0.5.3 (July 12, 2020)
 
 ## PySceneDetect v0.5
 
