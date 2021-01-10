@@ -7,7 +7,7 @@ Video Scene Cut Detection and Analysis Tool
 [![Build Status](https://img.shields.io/travis/com/Breakthrough/PySceneDetect)](https://travis-ci.com/github/Breakthrough/PySceneDetect) [![PyPI Status](https://img.shields.io/pypi/status/scenedetect.svg)](https://pypi.python.org/pypi/scenedetect/) [![PyPI Version](https://img.shields.io/pypi/v/scenedetect?color=blue)](https://pypi.python.org/pypi/scenedetect/)  [![PyPI License](https://img.shields.io/pypi/l/scenedetect.svg)](http://pyscenedetect.readthedocs.org/en/latest/copyright/)
 
 
-### Latest Release: v0.6 (TBD)
+### Latest Release: v0.5.4 (September 14, 2020)
 
 **Main Webpage**:  [py.scenedetect.com](http://py.scenedetect.com)
 
@@ -19,7 +19,7 @@ Video Scene Cut Detection and Analysis Tool
 
 **Quick Install**: To install PySceneDetect via `pip` with all dependencies:
 
-    pip install scenedetect[opencv,progress_bar]
+    pip install scenedetect[opencv]
 
 To enable video splitting support, you will also need to have `mkvmerge` or `ffmpeg` installed on your system. See the documentation on [Video Splitting Support](https://pyscenedetect.readthedocs.io/en/latest/examples/video-splitting/) after installation for details.
 

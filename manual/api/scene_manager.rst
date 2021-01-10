@@ -73,7 +73,7 @@ printing a list of scenes, and both saving/loading a stats file.
             if os.path.exists(stats_file_path):
                 # Read stats from CSV file opened in read mode:
                 with open(stats_file_path, 'r') as stats_file:
-                    stats_manager.load_from_csv(stats_file, base_timecode)
+                    stats_manager.load_from_csv(stats_file)
 
             # Set downscale factor to improve processing speed.
             video_manager.set_downscale_factor()
@@ -98,6 +98,7 @@ printing a list of scenes, and both saving/loading a stats file.
 
             # We only write to the stats file if a save is required:
             if stats_manager.is_save_required():
+                base_timecode = video_manager.get_base_timecode()
                 with open(stats_file_path, 'w') as stats_file:
                     stats_manager.save_to_csv(stats_file, base_timecode)
 

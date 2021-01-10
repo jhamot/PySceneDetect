@@ -55,7 +55,6 @@ from scenedetect.scene_manager import write_scene_list_html
 
 from scenedetect.stats_manager import StatsManager
 from scenedetect.stats_manager import StatsFileCorrupt
-from scenedetect.stats_manager import StatsFileFramerateMismatch
 
 from scenedetect.video_manager import VideoManager
 from scenedetect.video_manager import VideoOpenFailure
@@ -183,7 +182,9 @@ class CliContext(object):
         progress_bar = None
         if tqdm and not self.quiet_mode:
             progress_bar = tqdm(
-                total=len(scene_list) * self.num_images, unit='images')
+                total=len(scene_list) * self.num_images,
+                unit='images',
+                dynamic_ncols=True)
 
         filename_template = Template(image_name_template)
 
@@ -267,7 +268,7 @@ class CliContext(object):
                              os.path.basename(self.stats_file_path))
                 try:
                     with open(self.stats_file_path, 'rt') as stats_file:
-                        self.stats_manager.load_from_csv(stats_file, self.base_timecode)
+                        self.stats_manager.load_from_csv(stats_file)
                 except StatsFileCorrupt:
                     error_strs = [
                         'Could not load stats file.', 'Failed to parse stats file:',
@@ -278,20 +279,6 @@ class CliContext(object):
                     logging.error('\n'.join(error_strs))
                     raise click.BadParameter(
                         '\n  Could not load given stats file, see above output for details.',
-                        param_hint='input stats file')
-                except StatsFileFramerateMismatch as ex:
-                    error_strs = [
-                        'could not load stats file.', 'Failed to parse stats file:',
-                        'Framerate differs between stats file (%.2f FPS) and input'
-                        ' video%s (%.2f FPS)' % (
-                            ex.stats_file_fps,
-                            's' if self.video_manager.get_num_videos() > 1 else '',
-                            ex.base_timecode_fps),
-                        'Ensure the correct stats file path was given, or delete and re-generate'
-                        ' the stats file.']
-                    logging.error('\n'.join(error_strs))
-                    raise click.BadParameter(
-                        'framerate differs between given stats file and input video(s).',
                         param_hint='input stats file')
 
 
@@ -310,12 +297,11 @@ class CliContext(object):
         if self.scene_manager.get_num_detectors() == 0:
             logging.error(
                 'No scene detectors specified (detect-content, detect-threshold, etc...),\n'
-                '  or failed to process all command line arguments.')
+                ' or failed to process all command line arguments.')
             return
 
         # Handle scene detection commands (detect-content, detect-threshold, etc...).
         self.video_manager.start()
-        base_timecode = self.video_manager.get_base_timecode()
 
         start_time = time.time()
         logging.info('Detecting scenes...')
@@ -323,6 +309,19 @@ class CliContext(object):
         num_frames = self.scene_manager.detect_scenes(
             frame_source=self.video_manager, frame_skip=self.frame_skip,
             show_progress=not self.quiet_mode)
+
+        # Handle case where video fails with multiple audio tracks (#179).
+        # TODO: Is there a fix for this? See #179.
+        if num_frames <= 0:
+            logging.critical('\n'.join([
+                'Failed to read any frames from video file. This could be caused'
+                ' by the video having multiple audio tracks. If so, please try'
+                ' removing the audio tracks or muxing to mkv via:'
+                '      ffmpeg -i input.mp4 -c copy -an output.mp4'
+                'or:'
+                '      mkvmerge -o output.mkv input.mp4'
+                ' For details, see https://pyscenedetect.readthedocs.io/en/latest/faq/']))
+            return
 
         duration = time.time() - start_time
         logging.info('Processed %d frames in %.1f seconds (average %.2f FPS).',
@@ -334,6 +333,7 @@ class CliContext(object):
                 with open(self.stats_file_path, 'wt') as stats_file:
                     logging.info('Saving frame metrics to stats file: %s',
                                  os.path.basename(self.stats_file_path))
+                    base_timecode = self.video_manager.get_base_timecode()
                     self.stats_manager.save_to_csv(
                         stats_file, base_timecode)
             else:
@@ -341,8 +341,8 @@ class CliContext(object):
 
         # Get list of detected cuts and scenes from the SceneManager to generate the required output
         # files with based on the given commands (list-scenes, split-video, save-images, etc...).
-        cut_list = self.scene_manager.get_cut_list(base_timecode)
-        scene_list = self.scene_manager.get_scene_list(base_timecode)
+        cut_list = self.scene_manager.get_cut_list()
+        scene_list = self.scene_manager.get_scene_list()
         video_paths = self.video_manager.get_video_paths()
         video_name = os.path.basename(video_paths[0])
         if video_name.rfind('.') >= 0:
