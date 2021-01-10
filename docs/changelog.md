@@ -4,11 +4,9 @@ PySceneDetect Releases
 
 ## PySceneDetect 0.6
 
-### 0.6 (TBD) &nbsp;<span class="fa fa-tags"></span>
+### 0.6 (TBD)
 
  * [feature] New flash/strobe/flicker suppression option for the content detector `-f` / `--flicker [N]` which allows for setting the amount of suppression in frames or as a unit of time (default is 2 frames)
- * [enhancement] Improved seeking performance, greatly improves performance of the `time` and `save-images` commands ([#98](https://github.com/Breakthrough/PySceneDetect/issues/98) and [PR #163](https://github.com/Breakthrough/PySceneDetect/pull/163) - thanks @obroomhall)
- * [api] The `get_scene_list()` method of `SceneManager` no longer requires passing an explicit base timecode (i.e. the argument is now optional)
 
 
 ## PySceneDetect v0.5
