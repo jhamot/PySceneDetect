@@ -6,7 +6,7 @@
 #     [  Github: https://github.com/Breakthrough/PySceneDetect/  ]
 #     [  Documentation: http://pyscenedetect.readthedocs.org/    ]
 #
-# Copyright (C) 2014-2020 Brandon Castellano <http://www.bcastell.com>.
+# Copyright (C) 2014-2021 Brandon Castellano <http://www.bcastell.com>.
 #
 # PySceneDetect is licensed under the BSD 3-Clause License; see the included
 # LICENSE file, or visit one of the following pages for details:
@@ -48,13 +48,14 @@ as STRING_TYPE intended to help with parsing string types from the CLI parser.
 
 # Standard Library Imports
 from __future__ import print_function
-import sys
+
+import csv
 import os
 import os.path
 import platform
 import struct
-import csv
 import subprocess
+import sys
 
 # Third-Party Library Imports
 import cv2
@@ -95,27 +96,77 @@ except ImportError:
 # pylint: disable=invalid-name, undefined-variable
 if sys.version_info[0] == 2:
     STRING_TYPE = unicode
-
 else:
     STRING_TYPE = str
 # pylint: enable=invalid-name, undefined-variable
 
 
 ##
-## OpenCV 2.x Compatibility Fix
+## OpenCV Compatibility Fixes
 ##
+
+def opencv_version_required(min_version, version=None):
+    # type: (List[int], Optional[str])
+    """ Checks if the OpenCV library version is at least min_version.
+
+    Arguments:
+        min_version: List[int] of the version to compare against.
+        version: Optional string representing version string to
+        compare with, used for testing purposes.
+
+    Returns:
+        bool: True if the installed version is at least min_version,
+        False otherwise.
+    """
+    if version is None:
+        version = cv2.__version__
+    if not version[0].isdigit():
+        return False
+    try:
+        version = [int(x) for x in version.split('.')]
+        if len(version) < len(min_version):
+            version += [0] * (len(min_version) - len(version))
+        return not any([x[0] < x[1] for x in zip(version, min_version)])
+    except ValueError:
+        return False
+
 
 # Compatibility fix for OpenCV v2.x (copies CAP_PROP_* properties from the
 # cv2.cv namespace to the cv2 namespace, as the cv2.cv namespace was removed
 # with the release of OpenCV 3.0).
-if cv2.__version__[0] == '2' or not (
-        cv2.__version__[0].isdigit() and int(cv2.__version__[0]) >= 3):
+if not opencv_version_required([3, 0]):
     cv2.CAP_PROP_FRAME_WIDTH = cv2.cv.CV_CAP_PROP_FRAME_WIDTH
     cv2.CAP_PROP_FRAME_HEIGHT = cv2.cv.CV_CAP_PROP_FRAME_HEIGHT
     cv2.CAP_PROP_FPS = cv2.cv.CV_CAP_PROP_FPS
     cv2.CAP_PROP_POS_MSEC = cv2.cv.CV_CAP_PROP_POS_MSEC
     cv2.CAP_PROP_POS_FRAMES = cv2.cv.CV_CAP_PROP_POS_FRAMES
     cv2.CAP_PROP_FRAME_COUNT = cv2.cv.CV_CAP_PROP_FRAME_COUNT
+    cv2.INTER_CUBIC = cv2.cv.INTER_CUBIC
+
+
+def get_aspect_ratio(cap, epsilon=0.01):
+    # type: (cv2.VideoCapture) -> float
+    """ Compatibility fix for OpenCV < v3.4.1 to get the aspect ratio
+    of a video. For older versions, this function always returns 1.0.
+
+    Argument:
+        cap: cv2.VideoCapture object. Must be opened and in valid state.
+        epsilon: Used to compare numerator/denominator to zero.
+
+    Returns:
+        float: Display aspect ratio CAP_PROP_SAR_NUM / CAP_PROP_SAR_DEN,
+        or 1.0 if using a version of OpenCV < 3.4.1.  Also returns 1.0
+        if for some reason the numerator/denominator returned is zero
+        (can happen if the video was not opened correctly).
+    """
+    if not opencv_version_required([3, 4, 1]):
+        return 1.0
+    num = cap.get(cv2.CAP_PROP_SAR_NUM)
+    den = cap.get(cv2.CAP_PROP_SAR_DEN)
+    # If numerator or denominator are zero, fall back to 1.0 aspect ratio.
+    if abs(num) < epsilon or abs(den) < epsilon:
+        return 1.0
+    return num / den
 
 
 ##
